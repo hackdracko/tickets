@@ -8,6 +8,7 @@ import {RouterModule, PreloadAllModules, Router} from '@angular/router';
 import {ROUTES} from './app.routes';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CookieService} from 'ngx-cookie-service';
+import {AppConfigModule} from './app.config.module';
 
 @NgModule({
     declarations: [
@@ -16,6 +17,7 @@ import {CookieService} from 'ngx-cookie-service';
     imports: [
         BrowserModule,
         FormsModule,
+        AppConfigModule,
         LoginModule,
         DashboardModule,
         RouterModule.forRoot(ROUTES, {useHash: true, preloadingStrategy: PreloadAllModules}),

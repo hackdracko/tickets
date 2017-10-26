@@ -1,9 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Http, Response} from '@angular/http';
+import {Http, Response, Headers, RequestOptions} from '@angular/http';
 import {HttpErrorResponse} from "@angular/common/http";
 import {CookieService} from "ngx-cookie-service";
 import {Router} from '@angular/router';
+import {APP_CONFIG, AppConfig} from './../app.config.module'
 
 @Component({
     selector: 'app-login',
@@ -23,7 +24,8 @@ export class LoginComponent implements OnInit {
     constructor(private router: Router,
                 private http: Http,
                 public FormBuilder: FormBuilder,
-                private cookieService: CookieService) {
+                private cookieService: CookieService,
+                @Inject(APP_CONFIG) private config: AppConfig) {
     }
 
     ngOnInit() {
@@ -42,17 +44,25 @@ export class LoginComponent implements OnInit {
     }
 
     login() {
+        let url = `${this.config.apiEndPoint}`;
+        //let nUrl = `${this.options.apiEndPoint.replace(/\/$/, "")}/${url.replace(/^\//g, '')}`;
         let data = this.FormGroup.value;
         const body = {
             email: 'admin@admin.com',
             password: 'Rj1m3n3z'
         };
-        const headers = {
+        /*let headers = {
             'accept': 'application/json',
             'Cache-Control': 'no-cache',
             'Pragma': 'no-cache'
-        };
-        this.http.post('http://tickets.local/api/authorize', body, headers)
+        };*/
+        let headers = new Headers();
+        headers.append('Accept', 'application/json');
+        headers.append('Cache-Control', 'no-cache');
+        headers.append('Pragma', 'no-cache');
+        headers.append('Authorization', 'Bearer sadsad');
+
+        this.http.post(url + 'authorize', body, headers)
             .subscribe(data => {
                     let json = data.json();
                     this.cookieService.set('token', json.token);
@@ -62,14 +72,7 @@ export class LoginComponent implements OnInit {
                 (err: HttpErrorResponse) => {
                     console.log(err.status);
                     alert(err.statusText);
-                });
-
-        /*this.http.get('http://tickets.local/api/authorize').subscribe(data => {
-         console.log(data);
-         },
-         err => {
-         console.log("error");
-         });*/
+                }
+            );
     }
-
 }
