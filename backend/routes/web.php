@@ -25,4 +25,11 @@ Route::group(['prefix' => 'api'], function()
     Route::post('authorize', 'AuthenticateController@authenticate');
     Route::resource('user', 'UserController');
     Route::resource('client', 'ClientController');
+    Route::get('/office/clients', 'OfficeController@comboClients');
+    Route::resource('office', 'OfficeController');
+    Route::get('/ticket/clients', 'TicketController@comboClients');
+    Route::get('/ticket/offices/{id}', 'TicketController@comboOffices');
+    Route::get('/ticket/users', 'TicketController@comboUsers');
+    Route::get('/ticket/test', 'TicketController@test');
+    Route::resource('ticket', 'TicketController');
 });

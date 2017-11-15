@@ -16,8 +16,9 @@ class CreateTables extends Migration
         /*
         * CREATE TABLE CAT_CLIENTES
         * */
-        Schema::create('cat_client', function (Blueprint $table) {
+        Schema::create('cat_clients', function (Blueprint $table) {
             $table->increments('id');
+            $table->string('empresa', 30);
             $table->string('nombre', 30);
             $table->string('apellido', 30);
             $table->string('correo', 120);
@@ -32,6 +33,41 @@ class CreateTables extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+        /*
+        * CREATE TABLE CAT_SUCURSALES
+        * */
+        Schema::create('cat_offices', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('client_id')->unsigned();
+            $table->string('nombre', 80);
+            $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::table('cat_offices', function($table) {
+            $table->foreign('client_id')->references('id')->on('cat_clients');
+        });
+        /*
+         * CREATE TABLE TICKETS
+         * */
+        Schema::create('tickets', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('office_id')->unsigned();
+            $table->integer('user_id')->unsigned();
+            $table->string('titulo', 250);
+            $table->string('problema', 250);
+            $table->string('solucion', 250)->nullable();
+            $table->integer('prioridad');
+            $table->integer('estatus');
+            $table->dateTime('close_at')->nullable();
+            $table->timestamps();
+            $table->softDeletes();
+        });
+        Schema::table('tickets', function($table) {
+            $table->foreign('office_id')->references('id')->on('cat_offices');
+        });
+        Schema::table('tickets', function($table) {
+            $table->foreign('user_id')->references('id')->on('users');
+        });
     }
 
     /**
@@ -42,8 +78,21 @@ class CreateTables extends Migration
     public function down()
     {
         /*
+         * DROP TICKETS
+         * */
+        /*Schema::table('tickets', function($table)
+        {
+            $table->dropForeign('client_id');
+            $table->dropForeign('user_id');
+        });*/
+        Schema::dropIfExists('tickets');
+        /*
          * DROP CAT_CLIENTES
          * */
-        Schema::dropIfExists('cat_client');
+        Schema::dropIfExists('cat_offices');
+        /*
+         * DROP CAT_CLIENTES
+         * */
+        Schema::dropIfExists('cat_clients');
     }
 }

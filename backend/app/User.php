@@ -35,4 +35,9 @@ class User extends Authenticatable
      * @var array
      */
     protected $dates = ['deleted_at'];
+
+    public function tickets()
+    {
+        return $this->hasMany('App\Ticket', 'user_id');
+    }
 }

@@ -41,6 +41,7 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
+            'empresa' => 'required|alpha|min:3|max:50',
             'nombre' => 'required|alpha|min:3|max:50',
             'correo' => 'required|email|min:3|',
             'municipio' => 'required|alpha',
@@ -52,6 +53,7 @@ class ClientController extends Controller
         ]);
 
         $client = new Client();
+        $client->empresa = $request->get('empresa');
         $client->nombre = $request->get('nombre');
         $client->apellido = $request->get('apellido');
         $client->correo = $request->get('correo');
@@ -99,6 +101,7 @@ class ClientController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
+            'empresa' => 'required|alpha|min:3|max:50',
             'nombre' => 'required|alpha|min:3|max:50',
             'correo' => 'required|email|min:3|',
             'municipio' => 'required|alpha',
@@ -110,6 +113,7 @@ class ClientController extends Controller
         ]);
 
         $client = Client::find($id);
+        $client->empresa = $request->get('empresa');
         $client->nombre = $request->get('nombre');
         $client->apellido = $request->get('apellido');
         $client->correo = $request->get('correo');

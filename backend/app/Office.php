@@ -5,10 +5,10 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Client extends Model
+class Office extends Model
 {
     use SoftDeletes;
-    protected $table = "cat_clients";
+    protected $table = "cat_offices";
     protected $primaryKey = "id";
     protected $fillable = [
         '*'
@@ -20,8 +20,13 @@ class Client extends Model
      */
     protected $dates = ['deleted_at'];
 
-    public function offices()
+    public function client()
     {
-        return $this->hasMany('App\Office', 'office_id');
+        return $this->belongsTo('App\Client');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany('App\Ticket', 'office_id');
     }
 }
