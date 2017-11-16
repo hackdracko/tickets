@@ -9,6 +9,15 @@ import {ROUTES} from './app.routes';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {CookieService} from 'ngx-cookie-service';
 import {AppConfigModule} from './app.config.module';
+import {
+    MatButtonModule,
+    MatButtonToggleModule,
+    MatIconModule,
+    MatMenuModule,
+    MatToolbarModule,
+    MatSidenavModule,
+    MatTabsModule,
+} from '@angular/material';
 
 @NgModule({
     declarations: [
@@ -21,7 +30,13 @@ import {AppConfigModule} from './app.config.module';
         LoginModule,
         DashboardModule,
         RouterModule.forRoot(ROUTES, {useHash: true, preloadingStrategy: PreloadAllModules}),
-
+        MatButtonModule,
+        MatButtonToggleModule,
+        MatIconModule,
+        MatMenuModule,
+        MatToolbarModule,
+        MatSidenavModule,
+        MatTabsModule,
     ],
     providers: [CookieService],
     bootstrap: [AppComponent]

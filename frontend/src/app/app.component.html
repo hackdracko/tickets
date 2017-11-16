@@ -14,9 +14,14 @@
                 <li><a [routerLink]="['/dashboard/administrator']">Administración</a></li>
                 <li><a [routerLink]="['/dashboard/administrator/users']">Usuarios</a></li>
                 <li><a [routerLink]="['/dashboard/administrator/clients']">Clientes</a></li>
+                <li><a [routerLink]="['/dashboard/administrator/offices']">Sucursales</a></li>
+                <li><a [routerLink]="['/dashboard/tickets']">Tickets</a></li>
             </ul>
         </div><!--/.nav-collapse -->
     </div>
+    <!-- <div class="alert alert-danger col-md-12" role="alert" style="position: fixed; z-index: 1">
+        {{errorMsj}}
+    </div>-->
 </nav>
 
 <router-outlet></router-outlet>

@@ -104,9 +104,43 @@ export class UsersComponent implements OnInit {
                     this.FormGroup.reset();
                     alert('El usuario se agrego correctamente');
                 },
-                (err: HttpErrorResponse) => {
-                    console.log(err.status);
-                    alert(err.statusText);
+                (err) => {
+                    if (err.error instanceof Error) {
+                        // A client-side or network error occurred. Handle it accordingly.
+                        console.log('An error occurred:', err.error.message);
+                    } else {
+                        // The backend returned an unsuccessful response code.
+                        // The response body may contain clues as to what went wrong,
+
+                        if(err.status == 422) {
+                            let error = JSON.parse(err._body);
+                            let errorMsj = "";
+                            for(var key in error){
+                                errorMsj += error[key] + '\n';
+                                console.log(key + " " + error[key]);
+                            }
+                            alert(errorMsj);
+                        }else{
+                            alert(err);
+                        }
+
+                        /*this.formUnlock();
+                        this.loading = false;
+
+                        let router = this.router;
+                        sweetalert({
+                            title: error.message,
+                            type: "error",
+                            showCancelButton: false,
+                            progressSteps: [],
+                            confirmButtonText: "OK"
+                        }).then(function () {
+                            router.navigate(['/']);
+                        });*/
+
+                        console.log(err);
+                        console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
+                    }
                 }
             );
     }
