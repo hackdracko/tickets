@@ -1,9 +1,16 @@
-import {Component, OnInit, Inject} from '@angular/core';
+import {Component, OnInit, Inject, ViewChild} from '@angular/core';
 import {FormGroup, FormBuilder, Validators} from "@angular/forms";
 import {Router} from "@angular/router";
-import {Http} from "@angular/http";
-import {CookieService} from "ngx-cookie-service";
 import {APP_CONFIG, AppConfig} from "../../app.config.module";
+import {TicketsService} from "./tickets.service";
+import {MatTableDataSource, MatPaginator, MatSort} from "@angular/material";
+import {Observable} from 'rxjs/Observable';
+import {merge} from 'rxjs/observable/merge';
+import {of as observableOf} from 'rxjs/observable/of';
+import {catchError} from 'rxjs/operators/catchError';
+import {map} from 'rxjs/operators/map';
+import {startWith} from 'rxjs/operators/startWith';
+import {switchMap} from 'rxjs/operators/switchMap';
 import {HttpErrorResponse} from "@angular/common/http";
 
 @Component({
@@ -12,7 +19,21 @@ import {HttpErrorResponse} from "@angular/common/http";
     styleUrls: ['./tickets.component.css']
 })
 export class TicketsComponent implements OnInit {
+    displayedColumns = ['position', 'ticket', 'cliente', 'sucursal', 'asignado', 'problema', 'estatus', 'prioridad', 'creado', 'cerrado', 'actions'];
+    dataSource = new MatTableDataSource();
+    applyFilter(filterValue: string) {
+        filterValue = filterValue.trim(); // Remove whitespace
+        filterValue = filterValue.toLowerCase(); // Datasource defaults to lowercase matches
+        this.dataSource.filter = filterValue;
+    }
+    resultsLength = 0;
+    perPage = 0;
+    isLoadingResults = true;
+    isRateLimitReached = false;
+    @ViewChild(MatPaginator) paginator: MatPaginator;
+    @ViewChild(MatSort) sort: MatSort;
 
+    private headers: any;
     private data: [Object];
     private dataClients: [Object];
     private dataOffices: [Object];
@@ -52,13 +73,15 @@ export class TicketsComponent implements OnInit {
     public FormGroup: FormGroup;
 
     constructor(private router: Router,
-                private http: Http,
+                private service: TicketsService,
                 public FormBuilder: FormBuilder,
-                private cookieService: CookieService,
                 @Inject(APP_CONFIG) private config: AppConfig) {
     }
 
     ngOnInit() {
+        console.log("-----");
+        console.log(this.paginator);
+
         this.FormGroup = this.FormBuilder.group({
             user_id: [null,
                 Validators.compose([
@@ -96,22 +119,52 @@ export class TicketsComponent implements OnInit {
                 ])
             ],
         });
-        this.getTickets(1);
+        merge(this.sort.sortChange, this.paginator.page)
+            .pipe(
+                startWith({}),
+                switchMap(() => {
+                    this.isLoadingResults = true;
+                    this.isLoadingResults = true;
+                    return this.service.getIndex(this.url + 'ticket?page=' + (this.paginator.pageIndex + 1));
+                    /*return this.exampleDatabase!.getRepoIssues(
+                        this.sort.active, this.sort.direction, this.paginator.pageIndex);*/
+                }),
+                map(data => {
+                    console.log(data);
+                    // Flip flag to show that loading has finished.
+                    this.isLoadingResults = false;
+                    this.isRateLimitReached = false;
+                    this.resultsLength = data['total'];
+                    this.perPage = data['per_page'];
+                    return data['data'];
+                }),
+                catchError(() => {
+                    this.isLoadingResults = false;
+                    // Catch if the GitHub API has reached its rate limit. Return empty data.
+                    this.isRateLimitReached = true;
+                    return observableOf([]);
+                })
+            ).subscribe(data => this.dataSource['data'] = data);
     }
 
-    private getTickets(page) {
+    edit(id){
+        console.log("agregar " + id);
+    }
+
+    /*private getTickets(page) {
         this.index_ticket = true;
         this.new_ticket = false;
         this.edit_ticket = false;
         this.data = null;
-        this.http.get(this.url + 'ticket?page=' + page)
+        this.service.getIndex(this.url + 'ticket?page=' + page)
             .subscribe(data => {
-                    let json = data.json();
-                    this.data = json.data;
-                    this.prev_page_url = json.prev_page_url;
-                    this.last_page = json.last_page;
-                    this.current_page = json.current_page;
-                    this.next_page_url = json.next_page_url;
+                    this.dataSource.data = data['data'];
+                    this.resultsLength = data['total'];
+                    this.data = data['data'];
+                    this.prev_page_url = data['prev_page_url'];
+                    this.last_page = data['last_page'];
+                    this.current_page = data['current_page'];
+                    this.next_page_url = data['next_page_url'];
                     this.count = 1;
                     this.pages = [];
                     for (this.i = this.count; this.i <= this.last_page; this.i++) {
@@ -121,11 +174,10 @@ export class TicketsComponent implements OnInit {
                 (err: HttpErrorResponse) => {
                     console.log(err.status);
                     alert(err.statusText);
-                }
-            );
-    }
+            });
+    }*/
 
-    private getClients() {
+    /*private getClients() {
         this.http.get(this.url + 'ticket/clients')
             .subscribe(data => {
                     let json = data.json();
@@ -243,7 +295,7 @@ export class TicketsComponent implements OnInit {
                             alert(err);
                         }
 
-                        /*this.formUnlock();
+                        this.formUnlock();
                          this.loading = false;
 
                          let router = this.router;
@@ -255,7 +307,7 @@ export class TicketsComponent implements OnInit {
                          confirmButtonText: "OK"
                          }).then(function () {
                          router.navigate(['/']);
-                         });*/
+                         });
 
                         console.log(err);
                         console.log(`Backend returned code ${err.status}, body was: ${err.error}`);
@@ -284,6 +336,27 @@ export class TicketsComponent implements OnInit {
         this.new_ticket = false;
         this.edit_ticket = false;
         this.getTickets(1);
-    }
+    }*/
 
+}
+//{current_page: 1, data: Array(2), from: 1, last_page: 3, next_page_url: "http://tickets.local/api/ticket?page=2", …}current_page: 1data: (2) [{…}, {…}]0: {id: 1, office_id: 1, user_id: 1, titulo: "TITULO", problema: "PROBLEMA", …}1: {id: 2, office_id: 4, user_id: 2, titulo: "SUBIDA DE EXCEL", problema: "EL USUARIO MANDO DATOS", …}length: 2__proto__: Array(0)from: 1last_page: 3next_page_url: "http://tickets.local/api/ticket?page=2"path: "http://tickets.local/api/ticket"per_page: 2prev_page_url: nullto: 2total: 5__proto__: Object
+export interface TestApi {
+    items: TestApiData[];
+    total_count: number;
+}
+
+export interface TestApiData {
+    id: number;
+    close_at: string;
+    created_at: string;
+    estatus: string;
+    prioridad: number;
+    problema: string;
+    solucion: string;
+    titulo: string;
+    office: Office;
+}
+export interface Office {
+    id: number;
+    nombre: string;
 }

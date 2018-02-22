@@ -13,7 +13,8 @@ class TicketController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.auth', ['except' => ['index', 'store', 'edit', 'update', 'destroy', 'comboClients', 'comboOffices', 'comboUsers', 'test']]);
+        //$this->middleware('jwt.auth', ['except' => ['index', 'store', 'edit', 'update', 'destroy', 'comboClients', 'comboOffices', 'comboUsers', 'test']]);
+        $this->middleware('jwt.auth');
     }
     /**
      * Display a listing of the resource.
@@ -22,7 +23,7 @@ class TicketController extends Controller
      */
     public function index()
     {
-        $tickets = Ticket::with('user', 'office', 'office.client')->paginate(20);
+        $tickets = Ticket::with('user', 'office', 'office.client')->paginate(2);
         return response()->json($tickets);
     }
 

@@ -1,4 +1,95 @@
+<!--<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Mi Empresa</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li><a [routerLink]="['/dashboard/administrator']">Administración</a></li>
+                <li><a [routerLink]="['/dashboard/administrator/users']">Usuarios</a></li>
+                <li><a [routerLink]="['/dashboard/administrator/clients']">Clientes</a></li>
+                <li><a [routerLink]="['/dashboard/administrator/offices']">Sucursales</a></li>
+                <li><a [routerLink]="['/dashboard/tickets']">Tickets</a></li>
+            </ul>
+        </div>
+    </div>
+</nav>
 <div class="page-header">
     <h1>Bienvenido al Sistema de Tickets</h1>
 </div>
-<router-outlet></router-outlet>
+<mat-checkbox>Check me!</mat-checkbox>
+<router-outlet></router-outlet>-->
+<ng-container>
+    <mat-toolbar color="primary" class="header">
+            <button mat-icon-button (click)="sidenav.toggle()"><mat-icon>menu</mat-icon></button>
+            <img class="avatar" src="http://catalogos.alus.com.mx/assets/img/noavatar.jpg">
+        <div fxFlex="80%"></div>
+        <span fxlayout="row" fxlayoutalign="start center" style="flex-direction: row; box-sizing: border-box; display: flex; max-height: 100%; place-content: center flex-start; align-items: center;">
+            <img class="avatar" src="http://catalogos.alus.com.mx/assets/img/noavatar.jpg">
+            <span class="name" fxhide="" fxshow.gt-sm="" style="display: block;">Administrador ADMIN 1</span>
+            <button mat-icon-button [matMenuTriggerFor]="menu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #menu="matMenu">
+              <button mat-menu-item (click)="logout()">
+                <mat-icon>highlight_off</mat-icon>
+                <span>Salir</span>
+              </button>
+            </mat-menu>
+        </span>
+    </mat-toolbar>
+
+    <mat-sidenav-container class="sidenav-container">
+        <mat-sidenav #sidenav mode="side" opened="true" class="sidenav"
+                     [fixedInViewport]="options.value.fixed" [fixedTopGap]="options.value.top"
+                     [fixedBottomGap]="options.value.bottom">
+            <mat-nav-list>
+                <mat-accordion>
+                    <mat-expansion-panel class="sidenav">
+                        <mat-expansion-panel-header>
+                            <mat-panel-title>
+                                Administración
+                            </mat-panel-title>
+                        </mat-expansion-panel-header>
+                        <mat-nav-list>
+                            <a mat-list-item [routerLink]="['/dashboard/administrator/users']">Usuarios</a>
+                            <a mat-list-item [routerLink]="['/dashboard/administrator/clients']">Clientes</a>
+                            <a mat-list-item [routerLink]="['/dashboard/administrator/offices']">Sucursales</a>
+                        </mat-nav-list>
+                    </mat-expansion-panel>
+                </mat-accordion>
+                    <a mat-list-item [routerLink]="['/dashboard/tickets']">Tickets</a>
+            </mat-nav-list>
+        </mat-sidenav>
+
+        <mat-sidenav-content>
+            <div class="main-container">
+                <div class="container">
+                    <div class="page-header">
+                        <h1>Bienvenido al Sistema de Tickets</h1>
+                    </div>
+                    <mat-card>
+                        <router-outlet></router-outlet>
+                    </mat-card>
+                </div>
+            </div>
+
+            <!-- <p><mat-checkbox formControlName="fixed">Fixed</mat-checkbox></p>
+            <p><mat-form-field>
+                <input matInput type="number" formControlName="top" placeholder="Top gap">
+            </mat-form-field></p>
+            <p><mat-form-field>
+                <input matInput type="number" formControlName="bottom" placeholder="Bottom gap">
+            </mat-form-field></p>
+            <p><button mat-button (click)="sidenav.toggle()">Toggle</button></p> -->
+        </mat-sidenav-content>
+    </mat-sidenav-container>
+
+    <mat-toolbar class="footer">Footer</mat-toolbar>
+</ng-container>

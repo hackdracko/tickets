@@ -1,0 +1,49 @@
+.sidenav-container {
+    position: absolute;
+    top: 60px;
+    bottom: 60px;
+    left: 0;
+    right: 0;
+}
+
+.sidenav {
+    align-items: center;
+    justify-content: center;
+    width: 200px;
+    background: #E8EAF6;
+}
+
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #3F51B5;
+}
+
+.footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    color: white;
+    background-color: #1A237E;
+}
+
+.main-container {
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: calc(100% - 64px);
+    position: relative;
+}
+
+.container {
+    margin: 1px auto 0;
+    width: 95%;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}

@@ -6,9 +6,10 @@ import {LoginModule} from "./login/login.module";
 import {DashboardModule} from "./dashboard/dashboard.module";
 import {RouterModule, PreloadAllModules, Router} from '@angular/router';
 import {ROUTES} from './app.routes';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {FormsModule} from '@angular/forms';
 import {CookieService} from 'ngx-cookie-service';
 import {AppConfigModule} from './app.config.module';
+import {HttpClientModule} from '@angular/common/http';
 import {
     MatButtonModule,
     MatButtonToggleModule,
@@ -18,6 +19,9 @@ import {
     MatSidenavModule,
     MatTabsModule,
 } from '@angular/material';
+import {AuthGuard} from "./_guard/auth.guard";
+import {AuthenticationService} from "./_services/authentication.service";
+import {TicketsService} from "./dashboard/tickets/tickets.service";
 
 @NgModule({
     declarations: [
@@ -37,8 +41,13 @@ import {
         MatToolbarModule,
         MatSidenavModule,
         MatTabsModule,
+        HttpClientModule,
     ],
-    providers: [CookieService],
+    providers: [
+        CookieService,
+        AuthGuard,
+        AuthenticationService,
+        TicketsService],
     bootstrap: [AppComponent]
 })
 export class AppModule {

@@ -1,233 +1,92 @@
 <div class="row">
-    <ng-template [ngIf]="index_ticket">
-        <h3>Administración de Tickets</h3>
-        <div class="col-md-12 text-center">
-            <table class="table table-responsive table-bordered table-hover col-md-12">
-                <thead>
-                <tr>
-                    <th class="text-center">#</th>
-                    <th class="text-center"># Ticket</th>
-                    <th class="text-center">Cliente</th>
-                    <th class="text-center">Sucursal</th>
-                    <th class="text-center">Asignado A</th>
-                    <th class="text-center">Titulo del Problema</th>
-                    <th class="text-center">Estatus</th>
-                    <th class="text-center">Prioridad</th>
-                    <th class="text-center">Creado</th>
-                    <th class="text-center">Cerrado</th>
-                    <th class="text-center">Editar</th>
-                    <th class="text-center">Borrar</th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr *ngFor="let row of data; let incremental = index">
-                    <td>{{ incremental+1 }}</td>
-                    <td class="info">{{ row.id }}</td>
-                    <td>{{ row.office.client.empresa }}</td>
-                    <td>{{ row.office.nombre }}</td>
-                    <td>{{ row.user.name }}</td>
-                    <td>{{ row.titulo }}</td>
-                    <td class="{{row.estatus == 0 ? 'warning' : 'success'}}">{{row.estatus == 0 ? 'Abierto' : 'Cerrado'}}</td>
-                    <td *ngIf="row.prioridad == 1" class="info">Baja</td>
-                    <td *ngIf="row.prioridad == 2" class="warning">Media</td>
-                    <td *ngIf="row.prioridad == 3" class="danger">Alta</td>
-                    <td>{{ row.created_at }}</td>
-                    <td>{{ row.close_at }}</td>
-                    <td class="text-center"><i class="fa fa-pencil" aria-hidden="true" (click)="edit(row)"></i></td>
-                    <td class="text-center"><i class="fa fa-trash" aria-hidden="true" (click)="delete(row.id)"></i></td>
-                </tr>
-                </tbody>
-            </table>
+    <h3>Administración de Tickets</h3>
+    <div class="example-container mat-elevation-z8">
+        <div class="example-header">
+            <mat-form-field>
+                <input matInput (keyup)="applyFilter($event.target.value)" placeholder="Filter">
+            </mat-form-field>
         </div>
-        <div class="col-md-12 text-center">
-            <nav>
-                <ul class="pagination">
-                    <li *ngIf="prev_page_url" class="page-item">
-                        <a class="page-link" href="javascript:void(0);" (click)="getUsers(current_page-1)"
-                           aria-label="Previous">
-                            <span aria-hidden="true">«</span>
-                            <span class="sr-only">Previous</span>
-                        </a>
-                    </li>
-                    <li *ngFor="let page of pages; let i = index"
-                        class="{{page == current_page ? 'page-item active' : 'page-item '}}">
-                        <a class="page-link" href="javascript:void(0);"
-                           (click)="page == current_page ?  '' : getUsers(page)">{{ page }}</a>
-                    </li>
-                    <li *ngIf="next_page_url" class="page-item">
-                        <a class="page-link" href="javascript:void(0);" (click)="getUsers(current_page+1)"
-                           aria-label="Next">
-                            <span aria-hidden="true">»</span>
-                            <span class="sr-only">Next</span>
-                        </a>
-                    </li>
-                </ul>
-            </nav>
+        <div class="example-loading-shade"
+             *ngIf="isLoadingResults || isRateLimitReached">
+            <mat-spinner *ngIf="isLoadingResults"></mat-spinner>
+            <div class="example-rate-limit-reached" *ngIf="isRateLimitReached">
+                GitHub's API rate limit has been reached. It will be reset in one minute.
+            </div>
         </div>
-        <div class="text-center">
-            <button class="btn alert-success" (click)="new()">Agregar Nuevo</button>
-        </div>
-    </ng-template>
-    <ng-template [ngIf]="new_ticket">
-        <button class="btn btn-warning" (click)="back()">
-            Regresar
-        </button>
-        <h3 class="text-center">Alta de Tickets</h3>
-        <div class="col-md-offset-3 col-md-6">
-            <form [formGroup]="FormGroup" class="form-horizontal">
-                <div class="form-group">
-                    <div>
-                        <label>Cliente</label>
-                        <select formControlName="client_id" class="form-control" (change)="getOffices()">
-                            <option value="" [disabled]="true" [selected]="true">Elige un Cliente</option>
-                            <option *ngFor="let row of dataClients; let incremental = index" value="{{row.id}}">
-                                {{ row.empresa }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
+        <mat-table #table [dataSource]="dataSource" class="example-table"
+                   matSort matSortActive="created" matSortDisableClear matSortDirection="asc">
 
-                <div class="form-group">
-                    <div>
-                        <label>Sucursal</label>
-                        <select formControlName="office_id" class="form-control">
-                            <option value="" [selected]="true">Elige una Sucursal</option>
-                            <option *ngFor="let row of dataOffices; let incremental = index" value="{{row.id}}">
-                                {{ row.nombre }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
+            <ng-container matColumnDef="position">
+                <mat-header-cell *matHeaderCellDef> # </mat-header-cell>
+                <mat-cell *matCellDef="let data; let incremental = index">
+                    {{incremental + 1}}
+                </mat-cell>
+            </ng-container>
 
-                <div class="form-group">
-                    <div>
-                        <label>Asignar a</label>
-                        <select formControlName="user_id" class="form-control input-noborderradius">
-                            <option value="" [disabled]="true" [selected]="true">Elige un Usuario</option>
-                            <option *ngFor="let row of dataUsers; let incremental = index" value="{{row.id}}">
-                                {{ row.name }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
+            <ng-container matColumnDef="ticket">
+                <mat-header-cell *matHeaderCellDef> #Ticket </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.id}} </mat-cell>
+                <!-- <mat-cell *matCellDef="let element"> {{element.name}} </mat-cell>-->
+            </ng-container>
 
-                <div class="form-group">
-                    <div>
-                        <label>Título</label>
-                        <input formControlName="titulo" class="form-control input-noborderradius" placeholder="Descripción breve del problema">
-                    </div>
-                </div>
+            <!-- Weight Column -->
+            <ng-container matColumnDef="cliente">
+                <mat-header-cell *matHeaderCellDef> Cliente </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.office.client.empresa}} </mat-cell>
+                <!-- <mat-cell *matCellDef="let element"> {{element.weight}} </mat-cell>-->
+            </ng-container>
 
-                <div class="form-group">
-                    <div>
-                        <label>Problema</label>
-                        <textarea formControlName="problema" class="form-control input-noborderradius" placeholder="Descripción del problema"></textarea>
-                    </div>
-                </div>
+            <!-- Symbol Column -->
+            <ng-container matColumnDef="sucursal">
+                <mat-header-cell *matHeaderCellDef> Sucursal </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.office.nombre}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="asignado">
+                <mat-header-cell *matHeaderCellDef> Asignado A </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.user.name}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="problema">
+                <mat-header-cell *matHeaderCellDef> Problema </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.titulo}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="estatus">
+                <mat-header-cell *matHeaderCellDef> Estatus </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{data.estatus == 0 ? 'Abierto' : 'Cerrado'}} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="prioridad">
+                <mat-header-cell *matHeaderCellDef> Prioridad </mat-header-cell>
+                <mat-cell *matCellDef="let data">
+                    {{data.estatus == 1 ? 'Baja' : ''}}
+                    {{data.estatus == 2 ? 'Media' : ''}}
+                    {{data.estatus == 3 ? 'Alta' : ''}}
+                </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="creado">
+                <mat-header-cell *matHeaderCellDef> Creado </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{ data.created_at }} </mat-cell>
+            </ng-container>
+            <ng-container matColumnDef="cerrado">
+                <mat-header-cell *matHeaderCellDef> Cerrado </mat-header-cell>
+                <mat-cell *matCellDef="let data"> {{ data.close_at }} </mat-cell>
+            </ng-container>
 
-                <div class="form-group">
-                    <div>
-                        <label>Prioridad</label>
-                        <select formControlName="prioridad" class="form-control input-noborderradius">
-                            <option value="" [disabled]="true" [selected]="true">Selecciona una prioridad</option>
-                            <option *ngFor="let row of prioridades; let incremental = index" value="{{row.id}}">
-                                {{ row.name }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
+            <ng-container matColumnDef="actions">
+                <mat-header-cell *matHeaderCellDef>
+                    <span><mat-icon>add</mat-icon></span>
+                </mat-header-cell>
+                <mat-cell *matCellDef="let data">
+                    <span (click)="add(data.id)"><mat-icon>edit</mat-icon></span>
+                    <span><mat-icon>delete</mat-icon></span>
+                </mat-cell>
+            </ng-container>
 
-                <div>
-                    <button class="btn btn-block btn-success" (click)="saveClient()">
-                        Agregar Nuevo
-                    </button>
-                </div>
-            </form>
-        </div>
-    </ng-template>
-    <ng-template [ngIf]="edit_ticket">
-        <button class="btn btn-warning" (click)="back()">
-            Regresar
-        </button>
-        <h3 class="text-center">Edición de Tickets</h3>
-        <div class="col-md-offset-3 col-md-6">
-            <form [formGroup]="FormGroup" class="form-horizontal">
-
-                <div class="form-group">
-                    <div>
-                        <label>Cliente</label>
-                        <select formControlName="client_id" class="form-control input-noborderradius" [(ngModel)]="clientId">
-                            <option value="" [disabled]="true">Selecciona el Cliente</option>
-                            <option *ngFor="let row of dataClients; let incremental = index" [ngValue]="row.id" [selected]="row.id == clientId">
-                                {{ row.empresa }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Sucursal</label>
-                        <select formControlName="office_id" class="form-control input-noborderradius" [(ngModel)]="officeId">
-                            <option value="" [disabled]="true">Elige una Sucursal</option>
-                            <option *ngFor="let row of dataOffices; let incremental = index" [ngValue]="row.id" [selected]="row.id == officeId">
-                                {{ row.nombre }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Usuario Asignado</label>
-                        <select formControlName="user_id" class="form-control input-noborderradius" [(ngModel)]="userId">
-                            <option value="" [disabled]="true">Elige un usuario</option>
-                            <option *ngFor="let row of dataUsers; let incremental = index" value="{{row.id}}" [selected]="row.id == userId">
-                                {{ row.name }}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Título</label>
-                        <input formControlName="titulo" class="form-control input-noborderradius" placeholder="Descripción breve del problema" [(ngModel)] = "titulo">
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Problema</label>
-                        <textarea formControlName="problema" class="form-control input-noborderradius" placeholder="Descripción del problema" [(ngModel)] = "problema"></textarea>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Solución</label>
-                        <textarea formControlName="solucion" class="form-control input-noborderradius" placeholder="Descripción de la solución" [(ngModel)] = "solucion"></textarea>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div>
-                        <label>Prioridad</label>
-                        <select formControlName="prioridad" class="form-control input-noborderradius" [(ngModel)]="prioridadId">
-                            <option value="" [disabled]="true">Selecciona una prioridad</option>
-                            <option *ngFor="let row of prioridades; let incremental = index" value="{{row.id}}" [selected]="row.id == prioridadId">
-                                {{row.name}}
-                            </option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <button class="btn btn-block btn-success" (click)="updateClient(id)">
-                        Guardar
-                    </button>
-                </div>
-            </form>
-        </div>
-    </ng-template>
+            <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+            <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
+        </mat-table>
+        <mat-paginator [length]="resultsLength" [pageSize]="perPage" #paginator>
+        </mat-paginator>
+    </div>
+    <div class="text-center">
+        <button class="btn alert-success" (click)="edit()">Agregar Nuevo</button>
+    </div>
 </div>

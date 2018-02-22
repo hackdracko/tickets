@@ -9,7 +9,7 @@ class ClientController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('jwt.auth', ['except' => ['index', 'store', 'edit', 'update', 'destroy']]);
+        $this->middleware('jwt.auth');
     }
     /**
      * Display a listing of the resource.

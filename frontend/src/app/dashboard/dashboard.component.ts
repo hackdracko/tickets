@@ -1,4 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, Inject} from '@angular/core';
+import {FormBuilder, FormGroup} from "@angular/forms";
+import {AuthenticationService} from "../_services/authentication.service";
+import {APP_CONFIG, AppConfig} from "../app.config.module";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-dashboard',
@@ -7,9 +11,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DashboardComponent implements OnInit {
 
-  constructor() { }
+  constructor(fb: FormBuilder,
+              private authenticationService: AuthenticationService) {
+    this.options = fb.group({
+      'fixed': false,
+      'top': 0,
+      'bottom': 0,
+    });
+  }
 
   ngOnInit() {
+  }
+  options: FormGroup;
+
+  logout() {
+    this.authenticationService.logout();
   }
 
 }

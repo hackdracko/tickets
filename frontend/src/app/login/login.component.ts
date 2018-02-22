@@ -1,10 +1,10 @@
 import {Component, OnInit, Inject} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {Http, Response, Headers, RequestOptions} from '@angular/http';
-import {HttpErrorResponse} from "@angular/common/http";
 import {CookieService} from "ngx-cookie-service";
 import {Router} from '@angular/router';
-import {APP_CONFIG, AppConfig} from './../app.config.module'
+import {APP_CONFIG, AppConfig} from '../app.config.module'
+import {HttpClient, HttpHeaders, HttpErrorResponse} from "@angular/common/http";
+import {AuthenticationService} from "../_services/authentication.service";
 
 @Component({
     selector: 'app-login',
@@ -12,6 +12,9 @@ import {APP_CONFIG, AppConfig} from './../app.config.module'
     styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+    model: any = {};
+    loading = false;
+    error = '';
     cookieValue = 'UNKNOWN';
 
     /**
@@ -21,10 +24,10 @@ export class LoginComponent implements OnInit {
      */
     public FormGroup: FormGroup;
 
-    constructor(private router: Router,
-                private http: Http,
+    constructor(public http: HttpClient,
+                private router: Router,
                 public FormBuilder: FormBuilder,
-                private cookieService: CookieService,
+                private authenticationService: AuthenticationService,
                 @Inject(APP_CONFIG) private config: AppConfig) {
     }
 
@@ -44,35 +47,48 @@ export class LoginComponent implements OnInit {
     }
 
     login() {
-        let url = `${this.config.apiEndPoint}`;
-        //let nUrl = `${this.options.apiEndPoint.replace(/\/$/, "")}/${url.replace(/^\//g, '')}`;
-        let data = this.FormGroup.value;
-        const body = {
+        //this.loading = true;
+        //this.authenticationService.login(this.model.username, this.model.password)
+        const params = {
             email: 'admin@admin.com',
             password: 'Rj1m3n3z'
         };
-        /*let headers = {
-            'accept': 'application/json',
-            'Cache-Control': 'no-cache',
-            'Pragma': 'no-cache'
-        };*/
-        let headers = new Headers();
-        headers.append('Accept', 'application/json');
-        headers.append('Cache-Control', 'no-cache');
-        headers.append('Pragma', 'no-cache');
-        headers.append('Authorization', 'Bearer sadsad');
-
-        this.http.post(url + 'authorize', body, headers)
-            .subscribe(data => {
-                    let json = data.json();
-                    this.cookieService.set('token', json.token);
+        this.authenticationService.login(params)
+            .subscribe(result => {
+                if (result === true) {
+                    // login successful
                     this.router.navigate(['/dashboard']);
-                    //let test = this.cookieService.get('token');
+                } else {
+                    // login failed
+                    this.error = 'Username or password is incorrect';
+                    this.loading = false;
+                }
+            });
+    }
+
+    /*login() {
+        let url = `${this.config.apiEndPoint}`;
+        let data = this.FormGroup.value;
+        const params = {
+            email: 'admin@admin.com',
+            password: 'Rj1m3n3z'
+        };
+        let headers = new HttpHeaders();
+        headers.set('Accept','application/json');
+        headers.set('Content-Type','application/json');
+        headers.set('Cache-control','no-cache');
+
+        this.http.post(url + 'authorize', params, {headers: headers})
+            .subscribe(data => {
+                    this.cookieService.set('token', data['token']);
+                    let test = this.cookieService.get('token');
+                    console.log("Cookie " + test);
+                    this.router.navigate(['/dashboard']);
                 },
                 (err: HttpErrorResponse) => {
                     console.log(err.status);
                     alert(err.statusText);
                 }
             );
-    }
+    }*/
 }

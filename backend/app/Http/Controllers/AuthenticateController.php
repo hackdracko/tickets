@@ -7,11 +7,6 @@ use Illuminate\Http\Request;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use JWTAuth;
 
-/*use AppHttpRequests;
-use AppHttpControllersController;
-use JWTAuth;
-use Tymon\JWTAuthExceptions\JWTException;*/
-
 class AuthenticateController extends Controller
 {
     public function __construct()
@@ -19,14 +14,11 @@ class AuthenticateController extends Controller
         $this->middleware('jwt.auth', ['except' => ['authenticate']]);
     }
 
-    public function index()
-    {
-        echo "test";
-    }
-
     public function authenticate(Request $request)
     {
+        //dd($request);
         $credentials = $request->only('email', 'password');
+        //dd($credentials);
 
         try {
             // verify the credentials and create a token for the user

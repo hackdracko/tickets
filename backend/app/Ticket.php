@@ -20,13 +20,13 @@ class Ticket extends Model
      */
     protected $dates = ['deleted_at'];
 
-    public function user()
-    {
-        return $this->belongsTo('App\User');
-    }
-
     public function office()
     {
         return $this->belongsTo('App\Office');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo('App\User');
     }
 }
